@@ -540,4 +540,91 @@ layout: center
 class: 'text-white'
 ---
 
-# Threading model
+# Threading model or Why Netflix moved to NodeJs
+
+---
+layout: center
+class: 'text-white'
+---
+## Kernel is the source
+![Chad](chad.png)
+
+---
+layout: center
+class: 'text-white'
+---
+![System](system.png)
+
+---
+layout: center
+class: 'text-white'
+---
+# How Java backend works
+![Tomcat](tomcat.png)
+
+---
+layout: center
+class: 'text-white'
+---
+# Problems
+1. Each new User needs a Thread (default limit is 100)
+2. Each Thread costs memory(remember 8Mb stack)
+3. OS scheduler has to manage there threads
+4. More threads you have, more time OS spends on context switching
+
+---
+layout: center
+---
+# Solution is `epoll`
+![Event loop](event.png)
+
+
+---
+layout: center
+class: 'text-white'
+---
+
+### Why Java Can't do it,it actually did(Netty) BUT
+![Simple](simply.png)
+
+---
+layout: center
+class: 'text-white'
+---
+## Java codebase uses InputStream/OutputStream(blocking)
+1. `java.util.Thread`
+2. `JDBC` - Hibernate,Spring Data
+3. Http Clients
+
+---
+layout: center
+class: 'text-white'
+---
+## Solutions ? 
+Alibaba come up with one - only works in Linux(Why bother doing it for Windows ? )
+![alibaba](dragon.png)
+
+---
+layout: center
+class: 'text-white'
+---
+## Meet **Project Loop**
+![Loom](http://cr.openjdk.java.net/~rpressler/loom/loom_banner1.png)
+1. New class that extends `java.util.Thread`
+2. OS scheduler is written in Java and uses Os Scheduler as less as possible
+
+---
+layout: center
+class: 'text-white'
+---
+## Future Of Java
+1. New Versions every 2 quoters
+2. Bunch of cool projects
+3. JVM/JAVA will never die
+
+---
+layout: center
+class: 'text-white'
+---
+# And Remember, Do not trust me
+## I Know nothing
