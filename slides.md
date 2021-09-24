@@ -355,3 +355,189 @@ For heaps < 32G Java references take 4 bytes, as soon as
 your heap is bigger than 32G then all references are changed to take 8 bytes
 
 > Heap 32G is better than Heap 44G
+
+---
+layout: center
+class: 'text-white'
+---
+
+# JIT compilation
+1. Original JVM only had an interpeter
+2. JIT has 4 tiers and two modes(client and server)
+3. JVM collect statistics(WARMUP, HotStop) to generate optimal assembly
+
+---
+layout: center
+class: 'text-white'
+---
+
+# Demo
+```java
+    static long result;
+
+    public static void main(String[] args) {
+        var iterations = new Iterations[500];
+        var array = randomArray(20_000);
+        for (int i = 0; i < iterations.length; i++) {
+            long before = System.nanoTime();
+            result = sum(array);
+            long after = System.nanoTime();
+            iterations[i] = new Iterations(i, (after - before));
+            mutate(array);
+        }
+        for (int i = 0; i < iterations.length; i++) {
+            System.out.println(iterations[i].number + " " + iterations[i].duration);
+        }
+    }
+```
+
+---
+layout: center
+class: 'text-white'
+---
+
+```java{all|1-8|9-17|1,18}
+0 357837
+1 371812
+2 325667
+3 318983
+4 320454
+5 178666
+6 145237
+7 212675
+...
+491 9554
+492 9608
+493 9450
+494 9345
+495 9059
+496 8991
+497 8949
+498 9216
+499 8950
+
+```
+
+---
+layout: center
+class: 'text-white'
+---
+
+# You can see a compilation `java -XX:+PrintCompilation JitSample`
+```java
+     99  217 %     3       JitSample::sum @ 4 (25 bytes)
+     99  220       3       JitSample::sum (25 bytes)
+    104  231 %     3       JitSample::mutate @ 28 (49 bytes)
+    105  232       3       JitSample::mutate (49 bytes)
+    178  368       4       JitSample::mutate (49 bytes)
+```
+
+---
+layout: center
+class: 'text-white'
+---
+## Code cache
+1. All compiled code and all bytecode has to reside on main memory(RAM)
+2. Memory that stores compied code is called `Code Cache`(max size 256,can be configured)
+3. Code cache is not HEAP(GC doesn't touch it)
+
+---
+layout: center
+class: 'text-white'
+---
+
+![JIT](jit.png)
+
+---
+layout: center
+class: 'text-white'
+---
+![Knuth](optimization.png)
+
+---
+layout: center
+class: 'text-white'
+---
+
+# I want to write in Java but I don't have much of available memory . What can I do ? 
+
+![Graal](graal.png)
+
+---
+layout: center
+class: 'text-white'
+---
+
+# GC
+## Will Cleanup unused objects after you
+It's not a magic so Monitor and adjust
+### Keywords
+1. Mark - mark garbage
+2. Compact - discard garbage
+3. Stop the world - stop your application to perform GC
+
+---
+layout: center
+class: 'text-white'
+---
+![Gc](gc.png)
+<p style='color:orange'>Orange means blocking</p>
+
+---
+layout: center
+class: 'text-white'
+---
+# Let's see an example with serial GC
+## (I am depressed so let's use white grey and black)
+1. White - not visited
+2. Grey - visited but connected nodes are not marked
+3. Black - Visited and connected nodes marked
+
+---
+layout: center
+class: 'text-white'
+---
+
+![Gc1](gc1.png)
+
+---
+layout: center
+class: 'text-white'
+---
+
+![Gc2](gc2.png)
+All nodes from black are visited
+
+---
+layout: center
+class: 'text-white'
+---
+
+![Gc3](gc3.png)
+Mark step is finished
+
+---
+layout: center
+class: 'text-white'
+---
+## Concurrent is harder , way harder -_-(you always need pauses)
+![gc4](gc4.png)
+
+---
+layout: center
+class: 'text-white'
+---
+# Which GC to Choose ? 
+## G1 and then Shenandoah
+1. Adjustable GC time - `-XX:MaxGCPauseMillis`
+2. Gives cleaned memory back to OS ( why is it important ? )
+
+(I work in Facebook and I need a GC for Heaps with 10PT of memory `Z Garbage Collector`)
+
+
+---
+layout: center
+class: 'text-white'
+---
+
+# Threading model
